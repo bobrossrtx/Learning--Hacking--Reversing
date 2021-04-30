@@ -1,0 +1,10 @@
+Episode 0x02
+Introduction to programming in C
+
+Shows how to install vim
+Points out PATH environment variable
+Variables on the command line
+Compiling C programs with gcc
+
+Prerequisites: 
+  Linux OS;

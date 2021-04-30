@@ -1,0 +1,9 @@
+Episode 0x05
+Simple Crackme and GDB Introduction
+
+gdb (GNU Debugger)
+Control-Flow
+Changing behavior - cracking the program
+
+Prerequisites:
+  Some basic understanding of Assembler and the CPU

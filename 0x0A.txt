@@ -1,0 +1,8 @@
+Episode 0x0A
+The deal with numbers: hexadecimal, binary and decimal
+
+Why hexadecimal is cool
+converting between number systems
+
+Prerequisites:
+  4th grade school math

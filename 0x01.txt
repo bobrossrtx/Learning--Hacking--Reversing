@@ -1,0 +1,9 @@
+Episode 0x01
+Linux Operating system
+
+Teaches how to install linux (ubuntu) in a VM
+Teaches some simple things to do with Command-Line
+Commands: ls, cd, mkdir, touch, man, sudo, ...
+
+Prerequisites: 
+  None;

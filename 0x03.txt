@@ -1,0 +1,9 @@
+Episode 0x03
+Introduction to programming in Python
+
+Introduction to Python
+updating the system (OS)
+
+Prerequisites:
+  Linux OS;
+  programming in C video;

@@ -1,0 +1,8 @@
+Episode 0x08
+Uncrackable License Check? Part 2/2
+
+Anti Reversing Trick through
+fuzzing the ELF binary to find parser differential
+
+Prerequisites:
+  Assembler, (0x05, 0x06, 0x07)

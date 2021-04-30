@@ -1,0 +1,14 @@
+Episode 0x0B
+Smashing the Stack for Fun and Profit
+Boot a linux image, ssh and setuid binaries
+
+(Phrack: http://phrack.org/issues/49/14.html)
+
+
+Boot the exploit-exercises.com Protostar.iso | https://drive.google.com/drive/u/0/folders/0B9RbZkKdRR8qbkJjQ2VXbWNlQzg
+Use PuTTy for Windows
+Connect to the system with ssh
+setuid binaries
+
+Prerequisites:
+  Linux Command Line

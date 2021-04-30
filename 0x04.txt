@@ -1,0 +1,10 @@
+Episode 0x04
+How a CPU works and introduction to assembler
+
+CPU Registers
+Arithmetic Instructions
+Move, Jumps, Branches, Calls
+Stack with PUSH/POP
+
+Prerequisites:
+  Maybe some programming experience;

@@ -1,0 +1,9 @@
+Episode 0x07
+Uncrackable License Check? Part 1/2
+
+Algorithm to validate license key
+Cracking the improved key check
+writing a keygen for this algorithm
+
+Prerequisites:
+  Assembler, (0x05, 0x06)

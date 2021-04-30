@@ -1,0 +1,11 @@
+Episode 0x06
+Simple Tools and Techniques to analyse a Program
+
+Strings
+objdump
+Strace, Ltrace
+Hopper
+Radare2
+
+Prerequisites:
+  Assembler + Debugging with dgb (0x05)

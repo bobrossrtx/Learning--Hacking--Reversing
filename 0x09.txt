@@ -1,0 +1,10 @@
+Episode 0x09
+Syscalls and Kernel vs. User Mode
+
+Linux Kernel sourcecode
+write() Syscall
+copy_from_user()
+
+Prerequisites:
+  Assembler;
+  C Programming
