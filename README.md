@@ -1,0 +1,2 @@
+# Binary exploitation
+### Learning + work mostly comes from [Live Overflow](https://www.youtube.com/channel/UClcE-kVhqyiHCcjYwcpfj9w). I have added some small adjustments, and decided to write some notes.
