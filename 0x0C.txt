@@ -36,7 +36,7 @@ End Result from terminal:
   you have changed the 'modified' variable
 
 End Result from GDB:
-  Files insid of ./0x0C/gdb/*
+  Files inside of ./0x0C/gdb/*.gdb
 
 
 TODO: Write notes on |https://www.youtube.com/watch?v=T03idxny9jE&list=PLhixgUqwRTjxglIswKp9mpkfPNfHkzyeN&index=13|
